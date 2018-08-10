@@ -1,0 +1,66 @@
+ENC:
+
+Average time per gate: 0.000025327
+
+Standard deviation: 0.000000896
+
+AND:
+
+Average time per gate: 0.066596809
+
+Standard deviation: 0.000179496
+
+NAND:
+
+Average time per gate: 0.066579133
+
+Standard deviation: 0.000169035
+
+ANDYN:
+
+Average time per gate: 0.065916346
+
+Standard deviation: 0.000160817
+
+ANDNY:
+
+Average time per gate: 0.065909295
+
+Standard deviation: 0.000158189
+
+XOR:
+
+Average time per gate: 0.066579852
+
+Standard deviation: 0.000161265
+
+XNOR:
+
+Average time per gate: 0.066626785
+
+Standard deviation: 0.000541545
+
+OR:
+
+Average time per gate: 0.066579587
+
+Standard deviation: 0.000168113
+
+NOR:
+
+Average time per gate: 0.066565829
+
+Standard deviation: 0.000149496
+
+ORNY:
+
+Average time per gate: 0.065930537
+
+Standard deviation: 0.000304591
+
+ORYN:
+
+Average time per gate: 0.065905708
+
+Standard deviation: 0.000150221
+

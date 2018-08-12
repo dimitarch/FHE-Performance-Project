@@ -10,7 +10,7 @@
 using namespace std;
 
 template <class T>
-class timeFHE{
+class timingBool {
     private:
         int countAND;
         int countNAND;
@@ -24,79 +24,278 @@ class timeFHE{
         int countORNY;
         int countMUX;
     public:
-        void init();
+        timingBool (int a){
+            countAND = a;
+            countNAND = a;
+            countXOR = a;
+            countXNOR = a;
+            countOR = a;
+            countNOR = a;
+            countANDYN = a;
+            countANDNY = a;
+            countORYN = a;
+            countORNY = a;
+            countMUX = a;
+        }
         void print();
-        bool areEqual(T a, T b);  
-        T minFHE(T a, T b);
-        T maxFHE(T a, T b);
+        
+        T timingAND(T a, T b);
+        T timingNAND(T a, T b);
+        T timingANDYN(T a, T b);
+        T timingANDNY(T a, T b);
+        T timingXOR(T a, T b);
+        T timingXNOR(T a, T b);
+        T timingOR(T a, T b);
+        T timingNOR(T a, T b);
+        T timingORYN(T a, T b);
+        T timingORNY(T a, T b);
+        T timingMUX(T a, T b, T c);
 };
 
+
 template <class T>
-void timeFHE<T>::init (){
-    countAND = 0;
-    countNAND = 0;
-    countXOR = 0;
-    countXNOR = 0;
-    countOR = 0;
-    countNOR = 0;
-    countANDYN = 0;
-    countANDNY = 0;
-    countORYN = 0;
-    countORNY = 0;
-    countMUX = 0;
+void timingBool<T>::print () {
+    cout<<countAND<<"\n"<<countXOR<<"\n"<<countXNOR<<"\n"<<countMUX<<"\n"; 
 }
 
 template <class T>
-void timeFHE<T>::print (){
-    cout<<countAND<<"\n"<<countXNOR<<"\n"<<countMUX<<"\n"; 
+T timingBool<T>::timingAND (T a, T b) {
+    countAND++;
+
+    return  a & b;
 }
 
 template <class T>
-bool timeFHE<T>::areEqual (T a, T b){
-    countXNOR += sizeof(T) * CHAR_BIT;
-    countAND += (sizeof(T) * CHAR_BIT - 1);
+T timingBool<T>::timingNAND (T a, T b) {
+    countNAND++;
+
+    return  !(a & b);
+}
+
+template <class T>
+T timingBool<T>::timingANDYN (T a, T b) {
+    countANDYN++;
+
+    return  a & (!b);
+}
+
+template <class T>
+T timingBool<T>::timingANDNY (T a, T b) {
+    countANDNY++;
+
+    return  (!a) & b;
+}
+
+template <class T>
+T timingBool<T>::timingXOR (T a, T b) {
+    countXOR++;
+
+    return  a ^ b;
+}
+
+template <class T>
+T timingBool<T>::timingXNOR (T a, T b) {
+    countXNOR++;
+
+    return  !(a ^ b);
+}
+
+template <class T>
+T timingBool<T>::timingOR (T a, T b) {
+    countOR++;
+
+    return  a | b;
+}
+
+template <class T>
+T timingBool<T>::timingORYN (T a, T b) {
+    countORYN++;
+
+    return  a | (!b);
+}
+
+template <class T>
+T timingBool<T>::timingORNY (T a, T b) {
+    countORNY++;
+
+    return  (!a) | b;
+}
+
+template <class T>
+T timingBool<T>::timingNOR (T a, T b) {
+    countNOR++;
+
+    return  !(a | b);
+}
+
+template <class T>
+T timingBool<T>::timingMUX (T a, T b, T c) {
+    countMUX++;
+
+    return  a ? b : c;
+}
+
+timingBool <bool> timingOperation(0);
+
+template <class T>
+T andFHE (T a, T b) {
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++)
+        temp = timingOperation.timingAND(true, true);
+
+    return  a & b;
+}
+
+template <class T>
+T nandFHE (T a, T b) {
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++)
+        temp = timingOperation.timingNAND(true, true);
+
+    return  !(a & b);
+}
+
+template <class T>
+T andynFHE (T a, T b) {
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++)
+        temp = timingOperation.timingANDYN(true, true);
+    return  a & (!b);
+}
+
+template <class T>
+T andnyFHE (T a, T b) {
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++)
+        temp = timingOperation.timingANDNY(true, true);
+
+    return  (!a) & b;
+}
+
+template <class T>
+T xorFHE (T a, T b) {
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++)
+        temp = timingOperation.timingXOR(true, true);
+
+    return  a ^ b;
+}
+
+template <class T>
+T xnorFHE (T a, T b) {
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++)
+        temp = timingOperation.timingXNOR(true, true);
+
+    return  !(a ^ b);
+}
+
+template <class T>
+T orFHE (T a, T b) {
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++)
+        temp = timingOperation.timingOR(true, true);
+
+    return  a | b;
+}
+
+template <class T>
+T orynFHE (T a, T b) {
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++)
+        temp = timingOperation.timingORYN(true, true);
+
+    return  a | (!b);
+}
+
+template <class T>
+T ornyFHE (T a, T b) {
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++)
+        temp = timingOperation.timingORNY(true, true);
+
+    return  (!a) | b;
+}
+
+template <class T>
+T norFHE (T a, T b) {
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++)
+        temp = timingOperation.timingNOR(true, true);
+
+    return  !(a | b);
+}
+
+template <class T>
+bool areEqual (T a, T b) {   
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
+        temp = timingOperation.timingXNOR(true, true);
+        if(i != sizeof(T)*CHAR_BIT - 1) temp = timingOperation.timingAND(true, true);
+    }
 
     return (a == b);
-}
+} 
 
 template <class T>
-T timeFHE<T>::minFHE (T a, T b){
-    countXNOR += sizeof(T) * CHAR_BIT;
-    countMUX += 2 * (sizeof(T) * CHAR_BIT);
+T minFHE (T a, T b){
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
+        temp = timingOperation.timingXNOR(true, true);
+        temp = timingOperation.timingMUX(true, true, true);
+        temp = timingOperation.timingMUX(true, true, true);
+    }
 
     return (a<b) ? a : b;
 }
 
 template <class T>
-T timeFHE<T>::maxFHE (T a, T b){
-    countXNOR += sizeof(T) * CHAR_BIT;
-    countMUX += 2 * (sizeof(T) * CHAR_BIT);
+T maxFHE (T a, T b){
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
+        temp = timingOperation.timingXNOR(true, true);
+        temp = timingOperation.timingMUX(true, true, true);
+        temp = timingOperation.timingMUX(true, true, true);
+    }
 
     return (a>b) ? a : b;
 }
 
+template <class T>
+T addFHE (T a, T b){
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
+        temp = timingOperation.timingXOR(true, true);
+        temp = timingOperation.timingXOR(true, true);
+        temp = timingOperation.timingXOR(true, true);
+        temp = timingOperation.timingAND(true, true);
+        temp = timingOperation.timingAND(true, true);
+    }
+
+    return  (a + b);
+}
+
+template <class T>
+T subFHE (T a, T b){
+    bool temp;
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
+        temp = timingOperation.timingXOR(true, true);
+        temp = timingOperation.timingXOR(true, true);
+        temp = timingOperation.timingXOR(true, true);
+        temp = timingOperation.timingXOR(true, true);
+        temp = timingOperation.timingAND(true, true);
+        temp = timingOperation.timingAND(true, true);
+        temp = timingOperation.timingAND(true, true);
+    }
+
+    return  (a - b);
+}
+
 int main() {
-    int a1, b1;
-    cin>>a1>>b1;
-    timeFHE <int> temp1;
-    temp1.init();
-    cout<<temp1.areEqual(a1, b1)<<endl;
-    cout<<temp1.minFHE(a1, b1)<<endl;
-    cout<<temp1.maxFHE(a1, b1)<<endl;
-    temp1.print();
-
-    short a2, b2;
-    cin>>a2>>b2;
-    timeFHE <short> temp2;
-    temp2.init();
-    cout<<temp2.areEqual(a2, b2)<<endl;
-    temp2.print();
-
-    char a3, b3;
-    cin>>a3>>b3;
-    timeFHE <char> temp3;
-    temp3.init();
-    cout<<temp3.areEqual(a3, b3)<<endl;
-    temp3.print();
+    short a, b;
+    cin>>a>>b;
+    cout<<areEqual(a, b)<<endl;
+    cout<<addFHE(a, b)<<endl;
+    timingOperation.print();
     return 0;
 }

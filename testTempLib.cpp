@@ -1,3 +1,14 @@
+//#include <tfhe/tfhe.h>
+//#include <tfhe/tfhe_io.h>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <ctime>
+#include <cmath>
+
+using namespace std;
+
 double timeAND = 0.014419389, timeORYN = 0.014402810, timeORNY = 0.014405210, timeXNOR = 0.014414890, timeNOR = 0.014415586, timeXOR = 0.014418391, timeOR = 0.014418821, timeNAND = 0.014417746, timeANDNY = 0.014404012, timeANDYN = 0.014400963; 
 double sigmaAND = 0.000115750, sigmaORYN = 0.000123759, sigmaORNY = 0.000115314, sigmaXNOR = 0.000105690, sigmaNOR = 0.000100818, sigmaXOR = 0.000108985, sigmaOR = 0.000107224, sigmaNAND = 0.000107276, sigmaANDNY = 0.000129178, sigmaANDYN = 0.000111601; 
 

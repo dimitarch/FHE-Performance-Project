@@ -325,32 +325,9 @@ T subFHE (T a, T b){
 }
 
 int main() {
-    fstream input, output;
-    input.open("testNumbers.txt", fstream::in);
-    output.open("testSearching.txt", ios::app | ios::out);
+    int a, b;
 
-    short a[1024], n = 1000, x = 285;
-    for(int i = 0; i < n; i++)
-        input>>a[i];
-
-    /*int br = 0;
-    for(int i = 0; i < n; i++)
-        br = addFHE(br, (int) areEqual(x, a[i]));
-    */
-    //cout<<br<<endl;
-    output<<n<<": "<<timingOperations.timing()<<" "<<timingOperations.sigma()<<"\r\n";
-    
-    /*
-    for(int i = 0; i < n; i++)
-        for(int j = i + 1; j < n; j++){
-            short tempai, tempaj;
-            tempai = a[i];
-            tempaj = a[j];
-            a[i] = minFHE(tempai, tempaj);
-            a[j] = maxFHE(tempai, tempaj);
-        }
-
-    output<<n<<": "<<timingOperations.timing()<<" "<<timingOperations.sigma()<<"\r\n";
-    */
+    cin>>a>>b;
+    cout<<areEqual(a, b)<<"\r\n";
     return 0;
 }

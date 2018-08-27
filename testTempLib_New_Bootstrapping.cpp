@@ -132,7 +132,7 @@ T andFHE (T a, T b) {
     T result = 0;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
         bool temp = timingOperations.timingAND((bool) (a & ith), (bool) (b & ith));
 
         result += temp * ith;
@@ -146,7 +146,7 @@ T nandFHE (T a, T b) {
     T result = 0;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
         bool temp = timingOperations.timingNAND((bool) (a & ith), (bool) (b & ith));
 
         result += temp * ith;
@@ -160,7 +160,7 @@ T andynFHE (T a, T b) {
     T result = 0;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
         bool temp = timingOperations.timingANDYN((bool) (a & ith), (bool) (b & ith));
 
         result += temp * ith;
@@ -174,7 +174,7 @@ T andnyFHE (T a, T b) {
     T result = 0;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
         bool temp = timingOperations.timingANDNY((bool) (a & ith), (bool) (b & ith));
 
         result += temp * ith;
@@ -188,7 +188,7 @@ T xorFHE (T a, T b) {
     T result = 0;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
         bool temp = timingOperations.timingXOR((bool) (a & ith), (bool) (b & ith));
 
         result += temp * ith;
@@ -202,7 +202,7 @@ T xnorFHE (T a, T b) {
     T result = 0;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
         bool temp = timingOperations.timingXNOR((bool) (a & ith), (bool) (b & ith));
 
         result += temp * ith;
@@ -216,7 +216,7 @@ T orFHE (T a, T b) {
     T result = 0;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
         bool temp = timingOperations.timingOR((bool) (a & ith), (bool) (b & ith));
 
         result += temp * ith;
@@ -230,7 +230,7 @@ T orynFHE (T a, T b) {
     T result = 0;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
         bool temp = timingOperations.timingORYN((bool) (a & ith), (bool) (b & ith));
 
         result += temp * ith;
@@ -244,7 +244,7 @@ T ornyFHE (T a, T b) {
     T result = 0;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
         bool temp = timingOperations.timingORNY((bool) (a & ith), (bool) (b & ith));
 
         result += temp * ith;
@@ -258,7 +258,7 @@ T norFHE (T a, T b) {
     T result = 0;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
         bool temp = timingOperations.timingNOR((bool) (a & ith), (bool) (b & ith));
 
         result += temp * ith;
@@ -272,7 +272,7 @@ bool areEqualFHE (T a, T b) {
     bool result = true, temp;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
 
         temp = timingOperations.timingXNOR((bool) (a & ith), (bool) (b & ith));
 
@@ -288,7 +288,7 @@ T minFHE (T a, T b) {
     bool temp = false;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
 
         bool tmp = timingOperations.timingXNOR((bool) (a & ith), (bool) (b & ith));
 
@@ -296,7 +296,7 @@ T minFHE (T a, T b) {
     }
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
 
         result += timingOperations.timingMUX(temp, (bool) (b & ith), (bool) (a & ith)) * ith;
     }
@@ -310,7 +310,7 @@ T maxFHE (T a, T b) {
     bool temp = false;
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
 
         bool tmp = timingOperations.timingXNOR((bool) (a & ith), (bool) (b & ith));
 
@@ -318,7 +318,7 @@ T maxFHE (T a, T b) {
     }
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
-        long long ith = (long long) (1 << i);
+        long long ith = (long long) ((long long) 1 << i);
 
         result += timingOperations.timingMUX(temp, (bool) (a & ith), (bool) (b & ith)) * ith;
     }

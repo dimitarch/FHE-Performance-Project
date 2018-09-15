@@ -6,6 +6,7 @@
 #include <fstream>
 #include <ctime>
 #include <cmath>
+#include <vector>
 
 using namespace std;
 
@@ -133,7 +134,7 @@ T andFHE (T a, T b) {
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
-        bool temp = timingOperations.timingAND((bool) (a & ith), (bool) (b & ith));
+        bool temp = timingOperations.timingAND(((a >> i) & 1), ((b >> i) & 1));
 
         result += temp * ith;
     }
@@ -147,7 +148,7 @@ T nandFHE (T a, T b) {
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
-        bool temp = timingOperations.timingNAND((bool) (a & ith), (bool) (b & ith));
+        bool temp = timingOperations.timingNAND(((a >> i) & 1), ((b >> i) & 1));
 
         result += temp * ith;
     }
@@ -161,7 +162,7 @@ T andynFHE (T a, T b) {
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
-        bool temp = timingOperations.timingANDYN((bool) (a & ith), (bool) (b & ith));
+        bool temp = timingOperations.timingANDYN(((a >> i) & 1), ((b >> i) & 1));
 
         result += temp * ith;
     }
@@ -175,7 +176,7 @@ T andnyFHE (T a, T b) {
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
-        bool temp = timingOperations.timingANDNY((bool) (a & ith), (bool) (b & ith));
+        bool temp = timingOperations.timingANDNY(((a >> i) & 1), ((b >> i) & 1));
 
         result += temp * ith;
     }
@@ -189,7 +190,7 @@ T xorFHE (T a, T b) {
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
-        bool temp = timingOperations.timingXOR((bool) (a & ith), (bool) (b & ith));
+        bool temp = timingOperations.timingXOR(((a >> i) & 1), ((b >> i) & 1));
 
         result += temp * ith;
     }
@@ -203,7 +204,7 @@ T xnorFHE (T a, T b) {
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
-        bool temp = timingOperations.timingXNOR((bool) (a & ith), (bool) (b & ith));
+        bool temp = timingOperations.timingXNOR(((a >> i) & 1), ((b >> i) & 1));
 
         result += temp * ith;
     }
@@ -217,7 +218,7 @@ T orFHE (T a, T b) {
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
-        bool temp = timingOperations.timingOR((bool) (a & ith), (bool) (b & ith));
+        bool temp = timingOperations.timingOR(((a >> i) & 1), ((b >> i) & 1));
 
         result += temp * ith;
     }
@@ -231,7 +232,7 @@ T orynFHE (T a, T b) {
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
-        bool temp = timingOperations.timingORYN((bool) (a & ith), (bool) (b & ith));
+        bool temp = timingOperations.timingORYN(((a >> i) & 1), ((b >> i) & 1));
 
         result += temp * ith;
     }
@@ -245,7 +246,7 @@ T ornyFHE (T a, T b) {
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
-        bool temp = timingOperations.timingORNY((bool) (a & ith), (bool) (b & ith));
+        bool temp = timingOperations.timingORNY(((a >> i) & 1), ((b >> i) & 1));
 
         result += temp * ith;
     }
@@ -259,7 +260,7 @@ T norFHE (T a, T b) {
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
-        bool temp = timingOperations.timingNOR((bool) (a & ith), (bool) (b & ith));
+        bool temp = timingOperations.timingNOR(((a >> i) & 1), ((b >> i) & 1));
 
         result += temp * ith;
     }
@@ -274,7 +275,7 @@ bool areEqualFHE (T a, T b) {
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
         long long ith = (long long) ((long long) 1 << i);
 
-        temp = timingOperations.timingXNOR((bool) (a & ith), (bool) (b & ith));
+        temp = timingOperations.timingXNOR(((a >> i) & 1), ((b >> i) & 1));
 
         result = timingOperations.timingAND(result, temp);
     }
@@ -290,15 +291,15 @@ T minFHE (T a, T b) {
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
         long long ith = (long long) ((long long) 1 << i);
 
-        bool tmp = timingOperations.timingXNOR((bool) (a & ith), (bool) (b & ith));
+        bool tmp = timingOperations.timingXNOR(((a >> i) & 1), ((b >> i) & 1));
 
-        temp = timingOperations.timingMUX(tmp, temp, (bool) (a & ith));
+        temp = timingOperations.timingMUX(tmp, temp, ((a >> i) & 1));
     }
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
 
-        result += timingOperations.timingMUX(temp, (bool) (b & ith), (bool) (a & ith)) * ith;
+        result += timingOperations.timingMUX(temp, ((b >> i) & 1), ((a >> i) & 1)) * ith;
     }
 
     return result;
@@ -312,15 +313,15 @@ T maxFHE (T a, T b) {
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
         long long ith = (long long) ((long long) 1 << i);
 
-        bool tmp = timingOperations.timingXNOR((bool) (a & ith), (bool) (b & ith));
+        bool tmp = timingOperations.timingXNOR(((a >> i) & 1), ((b >> i) & 1));
 
-        temp = timingOperations.timingMUX(tmp, temp, (bool) (a & ith));
+        temp = timingOperations.timingMUX(tmp, temp, ((a >> i) & 1));
     }
 
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
 
-        result += timingOperations.timingMUX(temp, (bool) (a & ith), (bool) (b & ith)) * ith;
+        result += timingOperations.timingMUX(temp, ((a >> i) & 1), ((b >> i) & 1)) * ith;
     }
 
     return result;
@@ -334,10 +335,25 @@ T addFHE (T a, T b) {
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
         long long ith = (long long) ((long long) 1 << i);
 
-        result += timingOperations.timingXOR(timingOperations.timingXOR((bool) (a & ith), (bool) (b & ith)), carry) * ith;
+        result += timingOperations.timingXOR(timingOperations.timingXOR(((a >> i) & 1), ((b >> i) & 1)), carry) * ith;
 
-        bool temp = timingOperations.timingOR(timingOperations.timingAND((bool) (a & ith), (bool) (b & ith)), timingOperations.timingAND((bool) (a & ith), carry));
-        carry = timingOperations.timingOR(timingOperations.timingAND(carry, (bool) (b & ith)), temp);
+        bool temp = timingOperations.timingOR(timingOperations.timingAND(((a >> i) & 1), ((b >> i) & 1)), timingOperations.timingAND(((a >> i) & 1), carry));
+        carry = timingOperations.timingOR(timingOperations.timingAND(carry, ((b >> i) & 1)), temp);
+    }
+
+    return result;
+}
+
+template <class T>
+T addOneFHE (T a) {
+    T result = 0;
+    bool carry = true;
+
+    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
+        long long ith = (long long) ((long long) 1 << i);
+
+        result += timingOperations.timingXOR(carry, ((a >> i) & 1)) * ith;
+        carry = timingOperations.timingAND(carry, ((a >> i) & 1));
     }
 
     return result;
@@ -345,31 +361,150 @@ T addFHE (T a, T b) {
 
 template <class T>
 T subFHE (T a, T b){
-    T result = 0;
-    bool carry = true;
+    T complementB = addOneFHE(~b);
+    T result = addFHE(a, complementB);
 
-    T complementB = 0;
-    complementB = ~b;
+    return result;
+}
+
+template <class T>
+T multFHE (T a, T b){
+    T result = 0;
+    T limit = ((1 << (sizeof(T)*CHAR_BIT - 2)) - 1) * 2 + 1;
+
     for(int i = 0; i < sizeof(T)*CHAR_BIT; i++){
         long long ith = (long long) ((long long) 1 << i);
 
-        result += timingOperations.timingXOR(carry, (bool) (complementB & ith)) * ith;
-        carry = timingOperations.timingAND(carry, (bool) (complementB & ith));
-    }
-    complementB = result;
+        T tmp = limit * ((b >> i) & 1);
+        tmp = andFHE(a, tmp);
+        tmp = tmp << i;
 
-    result = 0;
-    carry = false;
-    for(int i = 0; i < sizeof(T)*CHAR_BIT; i++) {
-        long long ith = (long long) ((long long) 1 << i);
-
-        result += timingOperations.timingXOR(timingOperations.timingXOR((bool) (a & ith), (bool) (complementB & ith)), carry) * ith;
-
-        bool temp = timingOperations.timingOR(timingOperations.timingAND((bool) (a & ith), (bool) (complementB & ith)), timingOperations.timingAND((bool) (a & ith), carry));
-        carry = timingOperations.timingOR(timingOperations.timingAND(carry, (bool) (complementB & ith)), temp);
+        result = addFHE(result, tmp);
     }
 
     return result;
+}
+
+void resize(vector<bool> &x, int n){
+    if(n > x.size())
+        x.insert(x.end(),  n - x.size(), 0);
+}
+
+void init(vector<bool> &x, int n){
+    x.clear();
+    x.insert(x.begin(), n, 0);
+}
+
+void addNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n){
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    bool carry = false;
+
+    for(int i = 0; i < n; i++) {
+        result[i] = timingOperations.timingXOR(timingOperations.timingXOR(a[i], b[i]), carry);
+
+        bool temp = timingOperations.timingOR(timingOperations.timingAND(a[i], b[i]), timingOperations.timingAND(a[i], carry));
+        carry = timingOperations.timingOR(timingOperations.timingAND(carry, b[i]), temp);
+    }
+}
+
+void addOneNFHE (vector<bool> &result, vector<bool> a, int n) {
+    resize(a, n);
+    init(result, n);
+
+    bool carry = true;
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingXOR(carry, a[i]);
+        carry = timingOperations.timingAND(carry, a[i]);
+    }
+}
+
+void subNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n){
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    vector<bool> complementB(n);
+    for(int i = 0; i < n; i++){
+        complementB[i] = !b[i];
+    }
+
+    vector<bool> temp;
+    addOneNFHE(temp, complementB, n);
+    addNFHE(result, a, temp, n);
+}
+
+void multKaratsubaFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n, int depth){
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    if(depth == 1){
+        vector<bool> temp;
+        vector<bool> tempRes;
+        init(temp, n);
+
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < n; j++){
+                temp[j] = timingOperations.timingAND(a[j], b[i]);
+            }
+
+            temp.insert(temp.begin(), i, 0);
+
+            addNFHE(tempRes, result, temp, n);
+            result = tempRes;
+        }
+
+        return;
+    }
+
+    vector<bool> lowA;
+    for(int i = 0; i < depth/2; i++)
+        lowA.push_back(a[i]);
+
+    vector<bool> lowB;
+    for(int i = 0; i < depth/2; i++)
+        lowB.push_back(b[i]);
+
+    vector<bool> highA;
+    for(int i = depth/2; i < depth; i++)
+        highA.push_back(a[i]);
+
+    vector<bool> highB;
+    for(int i = depth/2; i < depth; i++)
+        highB.push_back(b[i]);
+
+    vector<bool> z0(n);
+    init(z0, n);
+    vector<bool> z1(n);
+    init(z1, n);
+    vector<bool> z2(n);
+    init(z2, n);
+
+    vector<bool> tmp1;
+    addNFHE(tmp1, lowA, highA, n);
+    vector<bool> tmp2;
+    addNFHE(tmp2, lowB, highB, n);
+
+    multKaratsubaFHE(z0, lowA, lowB, n, ceil((double) depth/2));
+    multKaratsubaFHE(z1, tmp1, tmp2, n, ceil((double) depth/2));
+    multKaratsubaFHE(z2, highA, highB, n, ceil((double) depth/2));
+
+    addNFHE(tmp1, z0, z2, n);
+    subNFHE(tmp2, z1, tmp1, n);
+
+    z1 = tmp2;
+
+    z2.insert(z2.begin(), ceil((double) depth/2)*2, 0);
+    z1.insert(z1.begin(), ceil((double) depth/2), 0);
+
+    addNFHE(tmp1, z0, z2, n);
+    addNFHE(result, tmp1, z1, n);
+
+    return;
 }
 
 void approximateTimeFHE () {
@@ -378,11 +513,34 @@ void approximateTimeFHE () {
 }
 
 int main() {
-    long long a, b;
+    vector<bool> a;
+    vector<bool> b;
+    vector<bool> result;
 
-    cin>>a>>b;
-    cout<<subFHE(a, b)<<"\r\n";
+    for(int i = 0; i < 4; i++){
+        bool x;
+        cin>>x;
+        a.push_back(x);
+    }
+
+    for(int i = 0; i < 4; i++){
+        bool x;
+        cin>>x;
+        b.push_back(x);
+    }
+
+    multKaratsubaFHE(result, a, b, 4, 4);
+
+    for(int i = 3; i >= 0; i--){
+        cout<<result[i];
+    }
 
     approximateTimeFHE();
+
+    /*int c, d;
+    cin>>c>>d;
+    cout<<subFHE(c, d)<<endl;
+
+    approximateTimeFHE();*/
     return 0;
 }

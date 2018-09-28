@@ -385,6 +385,33 @@ T multFHE (T a, T b){
     return result;
 }
 
+template <class T>
+T divFHE (T a, T b){
+    T result = 0;
+
+    for(int i = sizeof(T)*CHAR_BIT - 1; i >= 0; i--){
+        T temp = maxFHE((b << i), (((1 << sizeof(T)*CHAR_BIT - 2) - 1) * 2 + 1) * (areEqualFHE((b << i), 0)));
+        bool c = timingOperations.timingMUX(areEqualFHE(maxFHE(temp, a), a), 1, 0);
+
+        a = subFHE(a, (b << i) * c);
+        result += (1 << i) * c;
+    }
+
+    return result;
+}
+
+template <class T>
+T remFHE (T a, T b){
+    for(int i = sizeof(T)*CHAR_BIT - 1; i >= 0; i--){
+        T temp = maxFHE((b << i), (((1 << sizeof(T)*CHAR_BIT - 2) - 1) * 2 + 1) * (areEqualFHE((b << i), 0)));
+        bool c = timingOperations.timingMUX(areEqualFHE(maxFHE(temp, a), a), 1, 0);
+
+        a = subFHE(a, (b << i) * c);
+    }
+
+    return a;
+}
+
 void resize(vector<bool> &x, int n){
     if(n > x.size())
         x.insert(x.end(),  n - x.size(), 0);
@@ -437,27 +464,31 @@ void subNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n){
     addNFHE(result, a, temp, n);
 }
 
+void multNFHE(vector<bool> &result, vector<bool> a, vector<bool> b, int n){
+    vector<bool> temp;
+    vector<bool> tempRes;
+    init(temp, n);
+    init(result, n);
+
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++){
+            temp[j] = timingOperations.timingAND(a[j], b[i]);
+        }
+
+        temp.insert(temp.begin(), i, 0);
+
+        addNFHE(tempRes, result, temp, n);
+        result = tempRes;
+    }
+}
+
 void multKaratsubaFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n, int depth){
     resize(a, n);
     resize(b, n);
     init(result, n);
 
-    if(depth == 1){
-        vector<bool> temp;
-        vector<bool> tempRes;
-        init(temp, n);
-
-        for(int i = 0; i < n; i++){
-            for(int j = 0; j < n; j++){
-                temp[j] = timingOperations.timingAND(a[j], b[i]);
-            }
-
-            temp.insert(temp.begin(), i, 0);
-
-            addNFHE(tempRes, result, temp, n);
-            result = tempRes;
-        }
-
+    if(depth <= 8){
+        multNFHE(result, a, b, n);
         return;
     }
 
@@ -485,12 +516,12 @@ void multKaratsubaFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int
     init(z2, n);
 
     vector<bool> tmp1;
-    addNFHE(tmp1, lowA, highA, n);
+    addNFHE(tmp1, lowA, highA, (depth%2 == 0) ? (depth/2 + 1) : (depth/2 + 2));
     vector<bool> tmp2;
-    addNFHE(tmp2, lowB, highB, n);
+    addNFHE(tmp2, lowB, highB, (depth%2 == 0) ? (depth/2 + 1) : (depth/2 + 2));
 
     multKaratsubaFHE(z0, lowA, lowB, n, ceil((double) depth/2));
-    multKaratsubaFHE(z1, tmp1, tmp2, n, ceil((double) depth/2));
+    multKaratsubaFHE(z1, tmp1, tmp2, n, (depth%2 == 0) ? (depth/2 + 1) : (depth/2 + 2));
     multKaratsubaFHE(z2, highA, highB, n, ceil((double) depth/2));
 
     addNFHE(tmp1, z0, z2, n);
@@ -498,8 +529,8 @@ void multKaratsubaFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int
 
     z1 = tmp2;
 
-    z2.insert(z2.begin(), ceil((double) depth/2)*2, 0);
-    z1.insert(z1.begin(), ceil((double) depth/2), 0);
+    z2.insert(z2.begin(), ((int) depth/2) * 2, 0);
+    z1.insert(z1.begin(),  depth/2, 0);
 
     addNFHE(tmp1, z0, z2, n);
     addNFHE(result, tmp1, z1, n);
@@ -513,34 +544,41 @@ void approximateTimeFHE () {
 }
 
 int main() {
-    vector<bool> a;
+    /*vector<bool> a;
     vector<bool> b;
     vector<bool> result;
+    int d;
+    cin>>d;
+    for(int j = 0;  j < 100; j++){
+    long long x, y;
+    x = (long long) (rand() * rand() * (rand() % 100)) - 1;
+    y = 511;
 
-    for(int i = 0; i < 4; i++){
-        bool x;
-        cin>>x;
-        a.push_back(x);
+    for(int i = 0; i < 64; i++){
+        a.push_back(x>>i & 1);
+        b.push_back(y>>i & 1);
     }
 
-    for(int i = 0; i < 4; i++){
-        bool x;
-        cin>>x;
-        b.push_back(x);
+    multNFHE(result, a, b, 64);
+
+    long long ans = 0;
+    for(int i = 63; i >= 0; i--){
+        ans += ((long long) result[i] << i);
     }
 
-    multKaratsubaFHE(result, a, b, 4, 4);
+    //approximateTimeFHE();
 
-    for(int i = 3; i >= 0; i--){
-        cout<<result[i];
+    //if(ans != multFHE(x, y))
+    cout<<x<<" "<<y<<" "<<ans<<" "<<multFHE((long long) x, (long long) y)<<" "<< ans - multFHE((long long) x, (long long) y)<<endl;
+
+    //approximateTimeFHE();
+    a.clear();
+    b.clear();
+    result.clear();
     }
-
-    approximateTimeFHE();
-
-    /*int c, d;
-    cin>>c>>d;
-    cout<<subFHE(c, d)<<endl;
-
     approximateTimeFHE();*/
+    int a, b;
+    cin>>a>>b;
+    cout<<remFHE(a, b)<<endl;
     return 0;
 }

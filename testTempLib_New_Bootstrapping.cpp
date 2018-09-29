@@ -390,7 +390,7 @@ T divFHE (T a, T b){
     T result = 0;
 
     for(int i = sizeof(T)*CHAR_BIT - 1; i >= 0; i--){
-        T temp = maxFHE((b << i), (((1 << sizeof(T)*CHAR_BIT - 2) - 1) * 2 + 1) * (areEqualFHE((b << i), 0)));
+        T temp = maxFHE((b << i), (long long) ((((long long) 1 << sizeof(T)*CHAR_BIT - 2) - 1) * 2 + 1) * (areEqualFHE((b << i), (long long) 0)));
         bool c = timingOperations.timingMUX(areEqualFHE(maxFHE(temp, a), a), 1, 0);
 
         a = subFHE(a, (b << i) * c);
@@ -403,7 +403,7 @@ T divFHE (T a, T b){
 template <class T>
 T remFHE (T a, T b){
     for(int i = sizeof(T)*CHAR_BIT - 1; i >= 0; i--){
-        T temp = maxFHE((b << i), (((1 << sizeof(T)*CHAR_BIT - 2) - 1) * 2 + 1) * (areEqualFHE((b << i), 0)));
+        T temp = maxFHE((b << i), (long long) ((((long long) 1 << sizeof(T)*CHAR_BIT - 2) - 1) * 2 + 1) * (areEqualFHE((b << i), (long long) 0)));
         bool c = timingOperations.timingMUX(areEqualFHE(maxFHE(temp, a), a), 1, 0);
 
         a = subFHE(a, (b << i) * c);
@@ -420,6 +420,151 @@ void resize(vector<bool> &x, int n){
 void init(vector<bool> &x, int n){
     x.clear();
     x.insert(x.begin(), n, 0);
+}
+
+void andNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingAND(a[i], b[i]);
+    }
+}
+
+void nandNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingNAND(a[i], b[i]);
+    }
+}
+
+void andynNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingANDYN(a[i], b[i]);
+    }
+}
+
+void andnyNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingANDNY(a[i], b[i]);
+    }
+}
+
+void xorNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingXOR(a[i], b[i]);
+    }
+}
+
+void xnorNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingXNOR(a[i], b[i]);
+    }
+}
+
+void orNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingOR(a[i], b[i]);
+    }
+}
+
+void orynNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingORYN(a[i], b[i]);
+    }
+}
+
+void ornyNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingORNY(a[i], b[i]);
+    }
+}
+
+void norNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingNOR(a[i], b[i]);
+    }
+}
+
+bool areEqualNFHE (vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    bool result = true, temp;
+
+    for(int i = 0; i < n; i++) {
+        temp = timingOperations.timingXNOR(a[i], b[i]);
+        result = timingOperations.timingAND(result, temp);
+    }
+
+    return result;
+}
+
+void minNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+    bool temp = false;
+
+    for(int i = 0; i < n; i++) {
+        bool tmp = timingOperations.timingXNOR(a[i], b[i]);
+        temp = timingOperations.timingMUX(tmp, temp, a[i]);
+    }
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingMUX(temp, b[i], a[i]);
+    }
+}
+
+void maxNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n) {
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+    bool temp = false;
+
+    for(int i = 0; i < n; i++) {
+        bool tmp = timingOperations.timingXNOR(a[i], b[i]);
+        temp = timingOperations.timingMUX(tmp, temp, a[i]);
+    }
+
+    for(int i = 0; i < n; i++){
+        result[i] = timingOperations.timingMUX(temp, a[i], b[i]);
+    }
 }
 
 void addNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n){
@@ -487,7 +632,7 @@ void multKaratsubaFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int
     resize(b, n);
     init(result, n);
 
-    if(depth <= 8){
+    if(depth <= 32){
         multNFHE(result, a, b, n);
         return;
     }
@@ -538,13 +683,77 @@ void multKaratsubaFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int
     return;
 }
 
+void divNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n){
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+
+    for(int i = n - 1; i >= 0; i--){
+        vector<bool> tmp = b;
+        tmp.insert(tmp.begin(), i, 0);
+
+        vector<bool> tm;
+        init(tm, n);
+        bool d = areEqualNFHE(tmp, tm, n);
+        for(int j = 0; j < n; j++)
+            tm[j] = d;
+
+        vector<bool> temp;
+        maxNFHE(temp, tmp, tm, n);
+        vector<bool> temp_max;
+        maxNFHE(temp_max, temp, a, n);
+
+        bool c = timingOperations.timingMUX(areEqualNFHE(temp_max, a, n), 1, 0);
+
+        for(int j = 0; j < n; j++)
+            tmp[j] = timingOperations.timingAND(tmp[j], c);
+
+        subNFHE(temp, a, tmp, n);
+        a = temp;
+
+        result[i] = c;
+    }
+}
+
+void remNFHE (vector<bool> &result, vector<bool> a, vector<bool> b, int n){
+    resize(a, n);
+    resize(b, n);
+    init(result, n);
+    result = a;
+
+    for(int i = n - 1; i >= 0; i--){
+        vector<bool> tmp = b;
+        tmp.insert(tmp.begin(), i, 0);
+
+        vector<bool> tm;
+        init(tm, n);
+        bool d = areEqualNFHE(tmp, tm, n);
+        for(int j = 0; j < n; j++)
+            tm[j] = d;
+
+        vector<bool> temp;
+        maxNFHE(temp, tmp, tm, n);
+
+        vector<bool> temp_max;
+        maxNFHE(temp_max, temp, result, n);
+
+        bool c = timingOperations.timingMUX(areEqualNFHE(temp_max, result, n), 1, 0);
+
+        for(int j = 0; j < n; j++)
+            tmp[j] = timingOperations.timingAND(tmp[j], c);
+
+        subNFHE(temp, result, tmp, n);
+        result = temp;
+    }
+}
+
 void approximateTimeFHE () {
     cout<<"Expected execution (in seconds): "<<timingOperations.timing()<<"\r\n";
     cout<<"Expected deviation (in seconds): "<<timingOperations.sigma()<<"\r\n";
 }
 
 int main() {
-    /*vector<bool> a;
+    vector<bool> a;
     vector<bool> b;
     vector<bool> result;
     int d;
@@ -552,14 +761,14 @@ int main() {
     for(int j = 0;  j < 100; j++){
     long long x, y;
     x = (long long) (rand() * rand() * (rand() % 100)) - 1;
-    y = 511;
+    y = 7892;
 
     for(int i = 0; i < 64; i++){
         a.push_back(x>>i & 1);
         b.push_back(y>>i & 1);
     }
 
-    multNFHE(result, a, b, 64);
+    divNFHE(result, a, b, 64);
 
     long long ans = 0;
     for(int i = 63; i >= 0; i--){
@@ -569,16 +778,14 @@ int main() {
     //approximateTimeFHE();
 
     //if(ans != multFHE(x, y))
-    cout<<x<<" "<<y<<" "<<ans<<" "<<multFHE((long long) x, (long long) y)<<" "<< ans - multFHE((long long) x, (long long) y)<<endl;
+    cout<<x<<" "<<y<<" "<<ans<<" "<<divFHE((long long) x, (long long) y)<<" "<< ans - divFHE((long long) x, (long long) y)<<endl;
 
     //approximateTimeFHE();
     a.clear();
     b.clear();
     result.clear();
     }
-    approximateTimeFHE();*/
-    int a, b;
-    cin>>a>>b;
-    cout<<remFHE(a, b)<<endl;
+    approximateTimeFHE();
+
     return 0;
 }

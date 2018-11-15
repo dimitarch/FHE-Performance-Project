@@ -1,5 +1,5 @@
 # FHE Performance Library – Project
-The repository contains the initial stages of the development of a fully homomorphic library for testing.
+The repository contains the initial stages of the development of a fully homomorphic library for testing, based on the following paper – https://drive.google.com/open?id=190mAX7OzlbuBRJxnhqDAp2Akfm5q0P1u.
 The files are as follows:
 - testBITS_ALL.txt and testNumbers.txt are sample data.
 - testALL_predetermined.cpp (taking as input testBITS_ALL.txt) and testALL_random.cpp perform a series of simulations to find the average time for one fully homomorphic operation

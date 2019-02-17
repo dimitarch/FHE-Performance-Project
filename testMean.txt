@@ -1,0 +1,3 @@
+Boot:
+Average time per gate: 0.043380846
+Standard deviation: 0.000128808

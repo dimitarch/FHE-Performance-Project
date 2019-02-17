@@ -18,7 +18,7 @@ class bitFHE{
             value = n;
         }
 
-        bitFHE& operator&(const bitFHE& a){
+        bitFHE operator&(const bitFHE& a){
             bootCount++;
             bitFHE b(0);
 
@@ -26,7 +26,7 @@ class bitFHE{
             return b;
         }
 
-        bitFHE& operator^(const bitFHE& a){
+        bitFHE operator^(const bitFHE& a){
             bootCount++;
             bitFHE b(0);
 
@@ -34,7 +34,7 @@ class bitFHE{
             return b;
         }
 
-        bitFHE& operator|(const bitFHE& a){
+        bitFHE operator|(const bitFHE& a){
             bootCount++;
             bitFHE b(0);
 
@@ -42,7 +42,7 @@ class bitFHE{
             return b;
         }
 
-        bitFHE& operator!(){
+        bitFHE operator!(){
             value = !value;
             return *this;
         }
@@ -79,7 +79,7 @@ class intFHE{
         }
     }
 
-    bitFHE& operator==(const intFHE& a){
+    bitFHE operator==(const intFHE& a){
         bitFHE ans, temp;
 
         for(int i = 0; i < 32; i++){
@@ -92,7 +92,7 @@ class intFHE{
         return ans;
     }
 
-    bitFHE& operator>(const intFHE& a){
+    bitFHE operator>(const intFHE& a){
         bitFHE ans(0), temp;
 
         for(int i = 0; i < 32; i++){
@@ -104,7 +104,7 @@ class intFHE{
         return ans;
     }
 
-    bitFHE& operator<(const intFHE& a){
+    bitFHE operator<(const intFHE& a){
         bitFHE ans(0), temp;
 
         for(int i = 0; i < 32; i++){
@@ -116,7 +116,7 @@ class intFHE{
         return !ans;
     }
 
-    intFHE& operator+(const intFHE& a){
+    intFHE operator+(const intFHE& a){
         bitFHE carry(0), temp(0);
 
         intFHE result(0);
@@ -140,7 +140,7 @@ int GetBootstrapping(){
 int main(){
     ios::sync_with_stdio(false);
     cin.tie(NULL);
-
+    
     intFHE a(15), b(16), c(0);
 
     c = (a+b);

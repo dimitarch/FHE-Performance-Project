@@ -17,6 +17,6 @@ sudo apt-get install -y libgmp-dev libfftw3-dev
     cmake ../src -DENABLE_TESTS=on -DENABLE_FFTW=on -DCMAKE_BUILD_TYPE=optim -DCMAKE_INSTALL_PREFIX="/usr"
     make
 EOF
-    cd /home/vagrant;
+    cd /home/vagrant/tfhe
     make install
 )

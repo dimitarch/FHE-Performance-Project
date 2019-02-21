@@ -1,10 +1,63 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <tfhe/tfhe.h>
+#include <tfhe/tfhe_io.h>
 
 using namespace std;
 
 long long bootCount = 0, encCount = 0;
+
+//generate a keyset
+const int minimum_lambda = 110;
+const TFheGateBootstrappingParameterSet* params = new_default_gate_bootstrapping_parameters(minimum_lambda);
+//generate a random key
+TFheGateBootstrappingSecretKeySet* key = new_random_gate_bootstrapping_secret_keyset(params);
+
+class RealGateBootstrappedBit {
+    public:
+        LweSample* value = new_gate_bootstrapping_ciphertext(params);
+
+        RealGateBootstrappedBit() {
+            bootsSymEncrypt(value, 0, key);
+        }
+
+        RealGateBootstrappedBit(bool n) {
+            bootsSymEncrypt(value, n, key);
+        }
+
+        void operator=(const RealGateBootstrappedBit& a) const {
+            bootsCOPY(value, a.value, &key->cloud);
+        }
+
+        RealGateBootstrappedBit operator&(const RealGateBootstrappedBit& a) const {
+            RealGateBootstrappedBit b(0);
+
+            bootsAND(b.value, value, a.value, &key->cloud);
+            return b;
+        }
+
+        RealGateBootstrappedBit operator^(const RealGateBootstrappedBit& a) const {
+            RealGateBootstrappedBit b(0);
+
+            bootsXOR(b.value, value, a.value, &key->cloud);
+            return b;
+        }
+
+        RealGateBootstrappedBit operator|(const RealGateBootstrappedBit& a) const {
+            RealGateBootstrappedBit b(0);
+
+            bootsOR(b.value, value, a.value, &key->cloud);
+            return b;
+        }
+
+        RealGateBootstrappedBit operator!() const {
+            RealGateBootstrappedBit b(0);
+
+            bootsNOT(b.value, value, &key->cloud);
+            return b;
+        }
+};
 
 class SimulatedGateBootstrappedBit {
     public:
@@ -64,11 +117,9 @@ SimulatedGateBootstrappedBit mux(SimulatedGateBootstrappedBit a, SimulatedGateBo
 template <class BoolType>
 class GenericInt32 {
     public:
-    int value;
     vector<BoolType> encValue;
 
     GenericInt32() {
-        value = 0;
         for(int i = 0; i < 32; i++) {
             BoolType a;
             encValue.push_back(a);
@@ -76,7 +127,6 @@ class GenericInt32 {
     }
 
     GenericInt32(int n) {
-        value = n;
         for(int i = 0; i < 32; i++) {
             BoolType a(n%2);
             encValue.push_back(a);
@@ -127,7 +177,6 @@ class GenericInt32 {
         for(int i = 0; i < 32; i++)
             result.encValue[i] = !encValue[i];
 
-        result.value = ~value;
         return result;
     }
 
@@ -137,7 +186,6 @@ class GenericInt32 {
         for(int i = 0; i < 32; i++)
             result.encValue[i] = encValue[i] & a.encValue[i];
 
-        result.value = value & a.value;
         return result;
     }
 
@@ -147,7 +195,6 @@ class GenericInt32 {
         for(int i = 0; i < 32; i++)
             result.encValue[i] = encValue[i] | a.encValue[i];
 
-        result.value = value | a.value;
         return result;
     }
 
@@ -157,7 +204,6 @@ class GenericInt32 {
         for(int i = 0; i < 32; i++)
             result.encValue[i] = encValue[i] ^ a.encValue[i];
 
-        result.value = value ^ a.value;
         return result;
     }
 
@@ -173,7 +219,6 @@ class GenericInt32 {
             carry = (encValue[i] & a.encValue[i]) | (temp & carry);
         }
 
-        result.value = value + a.value;
         return result;
     }
 
@@ -187,8 +232,6 @@ class GenericInt32 {
             carry = encValue[i] & carry;
         }
 
-        result.value = value + 1;
-
         return result;
     }
 
@@ -199,7 +242,6 @@ class GenericInt32 {
         result = result++;
         result = result + *this;
 
-        result.value = value - a.value;
         return result;
     }
 
@@ -215,7 +257,6 @@ class GenericInt32 {
             result = result + temp;
         }
 
-        result.value = value * a.value;
         return result;
     }
 
@@ -225,7 +266,6 @@ class GenericInt32 {
 
         for(int i = 0; i < 32; i++)
             divident.encValue[i] = encValue[i];
-        divident.value = value;
 
         for(int i = 31; i >= 0; i--) {
             for(int j = 31; j >= 0; j--)
@@ -244,7 +284,6 @@ class GenericInt32 {
             result.encValue[i] = max;
         }
 
-        result.value = value / a.value;
         return result;
     }
 
@@ -254,7 +293,6 @@ class GenericInt32 {
 
         for(int i = 0; i < 32; i++)
             divident.encValue[i] = encValue[i];
-        divident.value = value;
 
         for(int i = 31; i >= 0; i--) {
             for(int j = 31; j >= 0; j--)
@@ -355,6 +393,12 @@ int GetEncryption(){
 }
 
 int main(){
+    RealGateBootstrappedBit a(0), b(1), c;
+    cout<<"*"<<endl;
+    c = a | b;
+    cout<<"*"<<endl;
+    cout<<bootsSymDecrypt(c.value, key)<<endl;
+
     cout<<TestAddition()<<endl;
     cout<<TestSubtraction()<<endl;
     cout<<TestMultiplication()<<endl;

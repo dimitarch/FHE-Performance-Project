@@ -14,6 +14,8 @@ const TFheGateBootstrappingParameterSet* params = new_default_gate_bootstrapping
 //generate a random key
 TFheGateBootstrappingSecretKeySet* key = new_random_gate_bootstrapping_secret_keyset(params);
 
+class SimulatedGateBootstrappedBit;
+
 class Computation {
     private:
         long long bootCount;
@@ -25,12 +27,16 @@ class Computation {
         encCount = 0;
     }
 
-    void Bootstrap(){
+    void Bootstrap() {
         bootCount++;
     }
 
-    void Encrypt(){
+    void Encrypt() {
         encCount++;
+    }
+
+    void ErrorCorrection(){
+        bootCount--;
     }
 
     long long GetBootstrapping() {
@@ -98,23 +104,28 @@ RealGateBootstrappedBit mux(RealGateBootstrappedBit a, RealGateBootstrappedBit b
 class SimulatedGateBootstrappedBit {
     public:
         bool value;
+        Computation* routine;
 
         SimulatedGateBootstrappedBit() {
             value = 0;
-            encCount++;
         }
 
         SimulatedGateBootstrappedBit(bool n) {
             value = n;
-            encCount++;
+        }
+
+        void Initialize(Computation& newComputation) {
+            routine = &newComputation;
+            routine -> Encrypt();
         }
 
         SimulatedGateBootstrappedBit operator&(const SimulatedGateBootstrappedBit& a) const {
             SimulatedGateBootstrappedBit b;
 
             b.value = value & a.value;
+            b.routine = routine;
 
-            bootCount++;
+            routine -> Bootstrap();
             return b;
         }
 
@@ -122,8 +133,9 @@ class SimulatedGateBootstrappedBit {
             SimulatedGateBootstrappedBit b;
 
             b.value = value ^ a.value;
+            b.routine = routine;
 
-            bootCount++;
+            routine -> Bootstrap();
             return b;
         }
 
@@ -131,8 +143,9 @@ class SimulatedGateBootstrappedBit {
             SimulatedGateBootstrappedBit b;
 
             b.value = value | a.value;
+            b.routine = routine;
 
-            bootCount++;
+            routine -> Bootstrap();
             return b;
         }
 
@@ -140,6 +153,8 @@ class SimulatedGateBootstrappedBit {
             SimulatedGateBootstrappedBit b;
 
             b.value = !value;
+            b.routine = routine;
+
             return b;
         }
 };
@@ -149,7 +164,7 @@ SimulatedGateBootstrappedBit mux(SimulatedGateBootstrappedBit a, SimulatedGateBo
 
     d.value = a.value ? b.value : c.value;
 
-    bootCount++;
+    bootCount += 2;
     return d;
 }
 
@@ -181,20 +196,26 @@ class GenericInt32 {
         }
     }
 
-    BoolType operator==(const GenericInt32& a) const {
+    void Initialize(Computation& newComputation){
+        for(int i = 0; i < 32; i++){
+            encValue[i].Initialize(newComputation);
+        }
+    }
+
+    BoolType operator==(const GenericInt32<BoolType>& a) const {
         BoolType ans(0), temp(0);
 
         for(int i = 0; i < 32; i++) {
             temp = !(encValue[i] ^ a.encValue[i]);
 
-            if(i != 0) ans = ans & temp;
+            if(i != 0) ans = temp & ans;
             else ans = temp;
         }
 
         return ans;
     }
 
-    BoolType operator>(const GenericInt32& a) const {
+    BoolType operator>(const GenericInt32<BoolType>& a) const {
         BoolType ans(0), temp(0);
 
         for(int i = 0; i < 32; i++) {
@@ -206,7 +227,7 @@ class GenericInt32 {
         return ans;
     }
 
-    BoolType operator<(const GenericInt32& a) const {
+    BoolType operator<(const GenericInt32<BoolType>& a) const {
         BoolType ans(0), temp(0);
 
         for(int i = 0; i < 32; i++) {
@@ -218,8 +239,8 @@ class GenericInt32 {
         return !ans;
     }
 
-    GenericInt32 operator~() const {
-        GenericInt32 result;
+    GenericInt32<BoolType> operator~() const {
+        GenericInt32<BoolType> result;
 
         for(int i = 0; i < 32; i++)
             result.encValue[i] = !encValue[i];
@@ -227,8 +248,8 @@ class GenericInt32 {
         return result;
     }
 
-    GenericInt32 operator&(const GenericInt32& a) const {
-        GenericInt32 result;
+    GenericInt32<BoolType> operator&(const GenericInt32<BoolType>& a) const {
+        GenericInt32<BoolType> result;
 
         for(int i = 0; i < 32; i++)
             result.encValue[i] = encValue[i] & a.encValue[i];
@@ -236,8 +257,8 @@ class GenericInt32 {
         return result;
     }
 
-    GenericInt32 operator|(const GenericInt32& a) const {
-        GenericInt32 result;
+    GenericInt32<BoolType> operator|(const GenericInt32<BoolType>& a) const {
+        GenericInt32<BoolType> result;
 
         for(int i = 0; i < 32; i++)
             result.encValue[i] = encValue[i] | a.encValue[i];
@@ -245,8 +266,8 @@ class GenericInt32 {
         return result;
     }
 
-    GenericInt32 operator^(const GenericInt32& a) const {
-        GenericInt32 result;
+    GenericInt32<BoolType> operator^(const GenericInt32<BoolType>& a) const {
+        GenericInt32<BoolType> result;
 
         for(int i = 0; i < 32; i++)
             result.encValue[i] = encValue[i] ^ a.encValue[i];
@@ -254,10 +275,10 @@ class GenericInt32 {
         return result;
     }
 
-    GenericInt32 operator+(const GenericInt32& a) const {
+    GenericInt32<BoolType> operator+(const GenericInt32<BoolType>& a) const {
         BoolType carry(0), temp(0);
 
-        GenericInt32 result;
+        GenericInt32<BoolType> result;
 
         for(int i = 0; i < 32; i++) {
             temp = encValue[i] ^ a.encValue[i];
@@ -269,10 +290,10 @@ class GenericInt32 {
         return result;
     }
 
-    GenericInt32 operator++(int) const {
+    GenericInt32<BoolType> operator++(int) const {
         BoolType carry(1);
 
-        GenericInt32 result;
+        GenericInt32<BoolType> result;
 
         for(int i = 0; i < 32; i++) {
             result.encValue[i] = encValue[i] ^ carry;
@@ -282,8 +303,8 @@ class GenericInt32 {
         return result;
     }
 
-    GenericInt32 operator-(const GenericInt32& a) const {
-        GenericInt32 result;
+    GenericInt32<BoolType> operator-(const GenericInt32<BoolType>& a) const {
+        GenericInt32<BoolType> result;
 
         result = ~a;
         result = result++;
@@ -292,24 +313,28 @@ class GenericInt32 {
         return result;
     }
 
-    GenericInt32 operator*(const GenericInt32& a) const {
+    GenericInt32<BoolType> operator*(const GenericInt32<BoolType>& a) const {
         BoolType def(0);
-        GenericInt32 result, temp;
+        def = encValue[0] & def;
+
+        GenericInt32<BoolType> result, temp;
 
         for(int i = 0 ; i < 32; i++) {
             for(int j = 31; j >= 0; j--)
                 if(j >= i) temp.encValue[j] = encValue[j - i] & a.encValue[i];
-                else temp.encValue[i] = def;
+                else temp.encValue[j] = def;
 
-            result = result + temp;
+            result = temp + result;
         }
 
         return result;
     }
 
-    GenericInt32 operator/(const GenericInt32& a) const {
+    GenericInt32<BoolType> operator/(const GenericInt32<BoolType>& a) const {
         BoolType def(0), max(0), one(1);
-        GenericInt32 result, divident, temp , zero;
+        def = encValue[0] & def;
+
+        GenericInt32<BoolType> result , divident, temp, zero;
 
         for(int i = 0; i < 32; i++)
             divident.encValue[i] = encValue[i];
@@ -334,9 +359,11 @@ class GenericInt32 {
         return result;
     }
 
-    GenericInt32 operator%(const GenericInt32& a) const {
+    GenericInt32<BoolType> operator%(const GenericInt32<BoolType>& a) const {
         BoolType def(0), max(0), one(1);
-        GenericInt32 divident, temp , zero;
+        def = encValue[0] & def;
+
+        GenericInt32<BoolType> result, divident, temp, zero;
 
         for(int i = 0; i < 32; i++)
             divident.encValue[i] = encValue[i];
@@ -363,7 +390,9 @@ class GenericInt32 {
 
 bool TestAdditionBool(){
     GenericInt32<bool> a(99), b(1000), c(0);
+
     c = a + b;
+
     int real = 1099;
     bool flag = true;
 
@@ -378,7 +407,9 @@ bool TestAdditionBool(){
 
 bool TestSubtractionBool(){
     GenericInt32<bool> a(99), b(1000), c(0);
+
     c = b - a;
+
     int real = 1000 - 99;
     bool flag = true;
 
@@ -393,7 +424,9 @@ bool TestSubtractionBool(){
 
 bool TestMultiplicationBool(){
     GenericInt32<bool> a(99), b(1000), c(0);
+
     c = b * a;
+
     int real = 1000 * 99;
     bool flag = true;
 
@@ -408,7 +441,9 @@ bool TestMultiplicationBool(){
 
 bool TestDivisionBool(){
     GenericInt32<bool> a(99), b(1000), c(0);
+
     c = b / a;
+
     int real = 1000 / 99;
     bool flag = true;
 
@@ -423,7 +458,9 @@ bool TestDivisionBool(){
 
 bool TestModBool(){
     GenericInt32<bool> a(99), b(1000), c(0);
+
     c = b % a;
+
     int real = 1000 % 99;
     bool flag = true;
 
@@ -436,9 +473,15 @@ bool TestModBool(){
     return flag;
 }
 
-bool TestAddition(){
+bool TestAddition() {
+    Computation cycle;
     GenericInt32<SimulatedGateBootstrappedBit> a(99), b(1000), c(0);
+    a.Initialize(cycle);
+    b.Initialize(cycle);
+    c.Initialize(cycle);
+
     c = a + b;
+
     int real = 1099;
     bool flag = true;
 
@@ -448,12 +491,20 @@ bool TestAddition(){
         real /= 2;
     }
 
+    cout<<cycle.GetBootstrapping()<<endl;
+
     return flag;
 }
 
-bool TestSubtraction(){
+bool TestSubtraction() {
+    Computation cycle;
     GenericInt32<SimulatedGateBootstrappedBit> a(99), b(1000), c(0);
+    a.Initialize(cycle);
+    b.Initialize(cycle);
+    c.Initialize(cycle);
+
     c = b - a;
+
     int real = 1000 - 99;
     bool flag = true;
 
@@ -463,12 +514,20 @@ bool TestSubtraction(){
         real /= 2;
     }
 
+    cout<<cycle.GetBootstrapping()<<endl;
+
     return flag;
 }
 
-bool TestMultiplication(){
+bool TestMultiplication() {
+    Computation cycle;
     GenericInt32<SimulatedGateBootstrappedBit> a(99), b(1000), c(0);
+    a.Initialize(cycle);
+    b.Initialize(cycle);
+    c.Initialize(cycle);
+
     c = b * a;
+
     int real = 1000 * 99;
     bool flag = true;
 
@@ -478,12 +537,21 @@ bool TestMultiplication(){
         real /= 2;
     }
 
+     cout<<cycle.GetBootstrapping()<<endl;
+
+
     return flag;
 }
 
 bool TestDivision(){
+    Computation cycle;
     GenericInt32<SimulatedGateBootstrappedBit> a(99), b(1000), c(0);
+    a.Initialize(cycle);
+    b.Initialize(cycle);
+    c.Initialize(cycle);
+
     c = b / a;
+
     int real = 1000 / 99;
     bool flag = true;
 
@@ -493,12 +561,20 @@ bool TestDivision(){
         real /= 2;
     }
 
+    cout<<cycle.GetBootstrapping()<<endl;
+
     return flag;
 }
 
 bool TestMod(){
+    Computation cycle;
     GenericInt32<SimulatedGateBootstrappedBit> a(99), b(1000), c(0);
+    a.Initialize(cycle);
+    b.Initialize(cycle);
+    c.Initialize(cycle);
+
     c = b % a;
+
     int real = 1000 % 99;
     bool flag = true;
 
@@ -507,6 +583,8 @@ bool TestMod(){
 
         real /= 2;
     }
+
+    cout<<cycle.GetBootstrapping()<<endl;
 
     return flag;
 }
@@ -537,7 +615,7 @@ int main(){
     cout<<TestDivision()<<endl;
     cout<<TestMod()<<endl;
 
-    cout<<GetBootstrapping()<<endl;
-    cout<<GetEncryption()<<endl;
+    //cout<<GetBootstrapping()<<endl;
+    //cout<<GetEncryption()<<endl;
     return 0;
 }

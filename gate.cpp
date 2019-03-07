@@ -14,8 +14,6 @@ const TFheGateBootstrappingParameterSet* params = new_default_gate_bootstrapping
 //generate a random key
 TFheGateBootstrappingSecretKeySet* key = new_random_gate_bootstrapping_secret_keyset(params);
 
-class SimulatedGateBootstrappedBit;
-
 class Computation {
     private:
         long long bootCount;
@@ -33,10 +31,6 @@ class Computation {
 
     void Encrypt() {
         encCount++;
-    }
-
-    void ErrorCorrection(){
-        bootCount--;
     }
 
     long long GetBootstrapping() {
@@ -146,6 +140,153 @@ class SimulatedGateBootstrappedBit {
             b.routine = routine;
 
             routine -> Bootstrap();
+            return b;
+        }
+
+        SimulatedGateBootstrappedBit operator!() const {
+            SimulatedGateBootstrappedBit b;
+
+            b.value = !value;
+            b.routine = routine;
+
+            return b;
+        }
+};
+
+class SimulatedCircuitBootstrappedBit {
+    public:
+        bool value;
+        long long level;
+        Computation* routine;
+
+        SimulatedGateBootstrappedBit() {
+            value = 0;
+            level = 0;
+        }
+
+        SimulatedGateBootstrappedBit(bool n) {
+            value = n;
+            level = 0;
+        }
+
+        void Initialize(Computation& newComputation) {
+            routine = &newComputation;
+            routine -> Encrypt();
+        }
+
+        SimulatedGateBootstrappedBit operator&(const SimulatedGateBootstrappedBit& a) const {
+            SimulatedGateBootstrappedBit b;
+
+            b.value = value & a.value;
+            b.routine = routine;
+            b.level = max(level, a.level) + 1;
+
+            if(routine.GetBootstrapping() < b.level)
+                routine -> Bootstrap();
+
+            return b;
+        }
+
+        SimulatedGateBootstrappedBit operator^(const SimulatedGateBootstrappedBit& a) const {
+            SimulatedGateBootstrappedBit b;
+
+            b.value = value ^ a.value;
+            b.routine = routine;
+            b.level = max(level, a.level) + 1;
+
+            if(routine.GetBootstrapping() < b.level)
+                routine -> Bootstrap();
+
+            return b;
+        }
+
+        SimulatedGateBootstrappedBit operator|(const SimulatedGateBootstrappedBit& a) const {
+            SimulatedGateBootstrappedBit b;
+
+            b.value = value | a.value;
+            b.routine = routine;
+            b.level = max(level, a.level) + 1;
+
+            if(routine.GetBootstrapping() < b.level)
+                routine -> Bootstrap();
+
+            return b;
+        }
+
+        SimulatedGateBootstrappedBit operator!() const {
+            SimulatedGateBootstrappedBit b;
+
+            b.value = !value;
+            b.routine = routine;
+
+            return b;
+        }
+};
+
+class SimulatedLevelledBit {
+    public:
+        bool value;
+        long long level;
+        Computation* routine;
+
+        SimulatedGateBootstrappedBit() {
+            value = 0;
+            level = 0;
+        }
+
+        SimulatedGateBootstrappedBit(bool n) {
+            value = n;
+            level = 0;
+        }
+
+        void Initialize(Computation& newComputation, long long newDepth) {
+            depth = newDepth;
+            routine = &newComputation;
+            routine -> Encrypt();
+        }
+
+        SimulatedGateBootstrappedBit operator&(const SimulatedGateBootstrappedBit& a) const {
+            SimulatedGateBootstrappedBit b;
+
+            b.value = value & a.value;
+            b.routine = routine;
+            b.level = max(level, a.level) + 1;
+
+            if(b.depth < b.level){
+                b.level = 0;
+                routine -> Bootstrap();
+            }
+
+            return b;
+        }
+
+        SimulatedGateBootstrappedBit operator^(const SimulatedGateBootstrappedBit& a) const {
+            SimulatedGateBootstrappedBit b;
+
+            b.value = value ^ a.value;
+            b.routine = routine;
+            b.level = max(level, a.level) + 1;
+
+            if(b.depth < b.level){
+                b.level = 0;
+                routine -> Bootstrap();
+            }
+
+            return b;
+        }
+
+        SimulatedGateBootstrappedBit operator|(const SimulatedGateBootstrappedBit& a) const {
+            SimulatedGateBootstrappedBit b;
+
+            b.value = value | a.value;
+            b.routine = routine;
+            b.level = max(level, a.level) + 1;
+
+            if(b.depth < b.level){
+                b.level = 0;
+                routine -> Bootstrap();
+            }
+
             return b;
         }
 
@@ -589,6 +730,22 @@ bool TestMod(){
     return flag;
 }
 
+/*
+bool IsPrime(){
+    Computation cycle;
+    GenericInt32<SimulatedGateBootstrappedBit> a(99), two(2), limit;
+    SimulatedGateBootstrappedBit isPrime(1);
+    a.Initialize(cycle);
+    isPrime.Initialize(cycle);
+    limit.Initialize(cycle);
+
+    bool flag = false;
+    limit = a / two;
+
+    for(int i = 0; i < a )
+}
+*/
+
 int GetBootstrapping(){
     return bootCount;
 }
@@ -599,9 +756,7 @@ int GetEncryption(){
 
 int main(){
     RealGateBootstrappedBit a(0), b(1), c;
-    cout<<"*"<<endl;
     c = a | b;
-    cout<<"*"<<endl;
     cout<<bootsSymDecrypt(c.value, key)<<endl;
 
     cout<<TestAdditionBool()<<endl;

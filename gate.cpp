@@ -159,12 +159,12 @@ class SimulatedCircuitBootstrappedBit {
         long long level;
         Computation* routine;
 
-        SimulatedGateBootstrappedBit() {
+        SimulatedCircuitBootstrappedBit() {
             value = 0;
             level = 0;
         }
 
-        SimulatedGateBootstrappedBit(bool n) {
+        SimulatedCircuitBootstrappedBit(bool n) {
             value = n;
             level = 0;
         }
@@ -174,47 +174,47 @@ class SimulatedCircuitBootstrappedBit {
             routine -> Encrypt();
         }
 
-        SimulatedGateBootstrappedBit operator&(const SimulatedGateBootstrappedBit& a) const {
-            SimulatedGateBootstrappedBit b;
+        SimulatedCircuitBootstrappedBit operator&(const SimulatedCircuitBootstrappedBit& a) const {
+            SimulatedCircuitBootstrappedBit b;
 
             b.value = value & a.value;
             b.routine = routine;
             b.level = max(level, a.level) + 1;
 
-            if(routine.GetBootstrapping() < b.level)
+            if(routine -> GetBootstrapping() < b.level)
                 routine -> Bootstrap();
 
             return b;
         }
 
-        SimulatedGateBootstrappedBit operator^(const SimulatedGateBootstrappedBit& a) const {
-            SimulatedGateBootstrappedBit b;
+        SimulatedCircuitBootstrappedBit operator^(const SimulatedCircuitBootstrappedBit& a) const {
+            SimulatedCircuitBootstrappedBit b;
 
             b.value = value ^ a.value;
             b.routine = routine;
             b.level = max(level, a.level) + 1;
 
-            if(routine.GetBootstrapping() < b.level)
+            if(routine -> GetBootstrapping() < b.level)
                 routine -> Bootstrap();
 
             return b;
         }
 
-        SimulatedGateBootstrappedBit operator|(const SimulatedGateBootstrappedBit& a) const {
-            SimulatedGateBootstrappedBit b;
+        SimulatedCircuitBootstrappedBit operator|(const SimulatedCircuitBootstrappedBit& a) const {
+            SimulatedCircuitBootstrappedBit b;
 
             b.value = value | a.value;
             b.routine = routine;
             b.level = max(level, a.level) + 1;
 
-            if(routine.GetBootstrapping() < b.level)
+            if(routine -> GetBootstrapping() < b.level)
                 routine -> Bootstrap();
 
             return b;
         }
 
-        SimulatedGateBootstrappedBit operator!() const {
-            SimulatedGateBootstrappedBit b;
+        SimulatedCircuitBootstrappedBit operator!() const {
+            SimulatedCircuitBootstrappedBit b;
 
             b.value = !value;
             b.routine = routine;
@@ -222,19 +222,20 @@ class SimulatedCircuitBootstrappedBit {
             return b;
         }
 };
-
+/*
 class SimulatedLevelledBit {
     public:
         bool value;
         long long level;
+        long long depth;
         Computation* routine;
 
-        SimulatedGateBootstrappedBit() {
+        SimulatedLevelledBit() {
             value = 0;
             level = 0;
         }
 
-        SimulatedGateBootstrappedBit(bool n) {
+        SimulatedLevelledBit(bool n) {
             value = n;
             level = 0;
         }
@@ -245,8 +246,8 @@ class SimulatedLevelledBit {
             routine -> Encrypt();
         }
 
-        SimulatedGateBootstrappedBit operator&(const SimulatedGateBootstrappedBit& a) const {
-            SimulatedGateBootstrappedBit b;
+        SimulatedLevelledBit operator&(const SimulatedLevelledBit& a) const {
+            SimulatedLevelledBit b;
 
             b.value = value & a.value;
             b.routine = routine;
@@ -260,8 +261,8 @@ class SimulatedLevelledBit {
             return b;
         }
 
-        SimulatedGateBootstrappedBit operator^(const SimulatedGateBootstrappedBit& a) const {
-            SimulatedGateBootstrappedBit b;
+        SimulatedLevelledBit operator^(const SimulatedLevelledBit& a) const {
+            SimulatedLevelledBit b;
 
             b.value = value ^ a.value;
             b.routine = routine;
@@ -275,8 +276,8 @@ class SimulatedLevelledBit {
             return b;
         }
 
-        SimulatedGateBootstrappedBit operator|(const SimulatedGateBootstrappedBit& a) const {
-            SimulatedGateBootstrappedBit b;
+        SimulatedLevelledBit operator|(const SimulatedLevelledBit& a) const {
+            SimulatedLevelledBit b;
 
             b.value = value | a.value;
             b.routine = routine;
@@ -290,8 +291,8 @@ class SimulatedLevelledBit {
             return b;
         }
 
-        SimulatedGateBootstrappedBit operator!() const {
-            SimulatedGateBootstrappedBit b;
+        SimulatedLevelledBit operator!() const {
+            SimulatedLevelledBit b;
 
             b.value = !value;
             b.routine = routine;
@@ -299,13 +300,24 @@ class SimulatedLevelledBit {
             return b;
         }
 };
-
+*/
 SimulatedGateBootstrappedBit mux(SimulatedGateBootstrappedBit a, SimulatedGateBootstrappedBit b, SimulatedGateBootstrappedBit c) {
     SimulatedGateBootstrappedBit d;
 
     d.value = a.value ? b.value : c.value;
 
-    bootCount += 2;
+    d.routine -> Bootstrap();
+    d.routine -> Bootstrap();
+    return d;
+}
+
+SimulatedCircuitBootstrappedBit mux(SimulatedCircuitBootstrappedBit a, SimulatedCircuitBootstrappedBit b, SimulatedCircuitBootstrappedBit c) {
+    SimulatedCircuitBootstrappedBit d;
+
+    d.value = a.value ? b.value : c.value;
+
+    if(max(a.level, b.level) + 1 > d.routine -> GetBootstrapping()) d.routine -> Bootstrap();
+    if(max(a.level, c.level) + 1 > d.routine -> GetBootstrapping()) d.routine -> Bootstrap();
     return d;
 }
 

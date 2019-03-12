@@ -222,7 +222,7 @@ class SimulatedCircuitBootstrappedBit {
             return b;
         }
 };
-/*
+
 class SimulatedLevelledBit {
     public:
         bool value;
@@ -252,6 +252,7 @@ class SimulatedLevelledBit {
             b.value = value & a.value;
             b.routine = routine;
             b.level = max(level, a.level) + 1;
+            b.depth = depth;
 
             if(b.depth < b.level){
                 b.level = 0;
@@ -267,6 +268,7 @@ class SimulatedLevelledBit {
             b.value = value ^ a.value;
             b.routine = routine;
             b.level = max(level, a.level) + 1;
+            b.depth = depth;
 
             if(b.depth < b.level){
                 b.level = 0;
@@ -282,6 +284,7 @@ class SimulatedLevelledBit {
             b.value = value | a.value;
             b.routine = routine;
             b.level = max(level, a.level) + 1;
+            b.depth = depth;
 
             if(b.depth < b.level){
                 b.level = 0;
@@ -296,11 +299,13 @@ class SimulatedLevelledBit {
 
             b.value = !value;
             b.routine = routine;
+            b.depth = depth;
+            b.level = level;
 
             return b;
         }
 };
-*/
+
 SimulatedGateBootstrappedBit mux(SimulatedGateBootstrappedBit a, SimulatedGateBootstrappedBit b, SimulatedGateBootstrappedBit c) {
     SimulatedGateBootstrappedBit d;
 
@@ -721,17 +726,17 @@ bool TestDivision(){
 
 bool TestMod(){
     Computation cycle;
-    GenericInt32<SimulatedGateBootstrappedBit> a(99), b(1000), c(0);
+    GenericInt32<SimulatedGateBootstrappedBit> a(2), b(44), c(0);
     a.Initialize(cycle);
     b.Initialize(cycle);
     c.Initialize(cycle);
 
     c = b % a;
 
-    int real = 1000 % 99;
+    int real = 44 % 2;
     bool flag = true;
 
-    for(int i = 0; i < 32; i++){
+    for(int i = 0; i < 32; i++) {
         flag &= (c.encValue[i].value == (real%2));
 
         real /= 2;
@@ -742,21 +747,150 @@ bool TestMod(){
     return flag;
 }
 
-/*
-bool IsPrime(){
+bool TestAdditionCircuit() {
     Computation cycle;
-    GenericInt32<SimulatedGateBootstrappedBit> a(99), two(2), limit;
-    SimulatedGateBootstrappedBit isPrime(1);
+    GenericInt32<SimulatedCircuitBootstrappedBit> a(99), b(1000), c(0);
+    a.Initialize(cycle);
+    b.Initialize(cycle);
+    c.Initialize(cycle);
+
+    c = a + b;
+
+    int real = 1099;
+    bool flag = true;
+
+    for(int i = 0; i < 32; i++) {
+        flag &= (c.encValue[i].value == (real%2));
+
+        real /= 2;
+    }
+
+    cout<<cycle.GetBootstrapping()<<endl;
+
+    return flag;
+}
+
+bool TestSubtractionCircuit() {
+    Computation cycle;
+    GenericInt32<SimulatedCircuitBootstrappedBit> a(99), b(1000), c(0);
+    a.Initialize(cycle);
+    b.Initialize(cycle);
+    c.Initialize(cycle);
+
+    c = b - a;
+
+    int real = 1000 - 99;
+    bool flag = true;
+
+    for(int i = 0; i < 32; i++) {
+        flag &= (c.encValue[i].value == (real%2));
+
+        real /= 2;
+    }
+
+    cout<<cycle.GetBootstrapping()<<endl;
+
+    return flag;
+}
+
+bool TestMultiplicationCircuit() {
+    Computation cycle;
+    GenericInt32<SimulatedCircuitBootstrappedBit> a(99), b(1000), c(0);
+    a.Initialize(cycle);
+    b.Initialize(cycle);
+    c.Initialize(cycle);
+
+    c = b * a;
+
+    int real = 1000 * 99;
+    bool flag = true;
+
+    for(int i = 0; i < 32; i++) {
+        flag &= (c.encValue[i].value == (real%2));
+
+        real /= 2;
+    }
+
+     cout<<cycle.GetBootstrapping()<<endl;
+
+
+    return flag;
+}
+
+bool TestDivisionCircuit() {
+    Computation cycle;
+    GenericInt32<SimulatedCircuitBootstrappedBit> a(99), b(1000), c(0);
+    a.Initialize(cycle);
+    b.Initialize(cycle);
+    c.Initialize(cycle);
+
+    c = b / a;
+
+    int real = 1000 / 99;
+    bool flag = true;
+
+    for(int i = 0; i < 32; i++) {
+        flag &= (c.encValue[i].value == (real%2));
+
+        real /= 2;
+    }
+
+    cout<<cycle.GetBootstrapping()<<endl;
+
+    return flag;
+}
+
+bool TestModCircuit() {
+    Computation cycle;
+    GenericInt32<SimulatedCircuitBootstrappedBit> a(99), b(1000), c(0);
+    a.Initialize(cycle);
+    b.Initialize(cycle);
+    c.Initialize(cycle);
+
+    c = b % a;
+
+    int real = 1000 % 99;
+    bool flag = true;
+
+    for(int i = 0; i < 32; i++) {
+        flag &= (c.encValue[i].value == (real%2));
+
+        real /= 2;
+    }
+
+    cout<<cycle.GetBootstrapping()<<endl;
+
+    return flag;
+}
+
+
+bool IsPrime() {
+    Computation cycle;
+    GenericInt32<SimulatedGateBootstrappedBit> a(37), zero(0), b(2), c;
+    SimulatedGateBootstrappedBit isPrime(1), buffer;
+
     a.Initialize(cycle);
     isPrime.Initialize(cycle);
-    limit.Initialize(cycle);
+    buffer.Initialize(cycle);
+    c.Initialize(cycle);
+    b.Initialize(cycle);
+    zero.Initialize(cycle);
 
-    bool flag = false;
-    limit = a / two;
+    int n;
+    cin>>n;
+    for(int i = 2; i < n; i++) {
+        c = a % b;
 
-    for(int i = 0; i < a )
+        buffer = mux(!(a == b), !(c == zero), !zero.encValue[0]);
+
+        isPrime = isPrime & buffer;
+
+        b = b++;
+    }
+
+    return isPrime.value;
 }
-*/
+
 
 int GetBootstrapping(){
     return bootCount;
@@ -771,6 +905,20 @@ int main(){
     c = a | b;
     cout<<bootsSymDecrypt(c.value, key)<<endl;
 
+    SimulatedLevelledBit d(0), e(1), f;
+    Computation circuit;
+
+    d.Initialize(circuit, 3);
+    e.Initialize(circuit, 3);
+    f.Initialize(circuit, 3);
+
+    f = d & e;
+    d = f | e;
+    e = f ^ e;
+    d = d & e;
+
+    cout<<circuit.GetBootstrapping()<<endl;
+
     cout<<TestAdditionBool()<<endl;
     cout<<TestSubtractionBool()<<endl;
     cout<<TestMultiplicationBool()<<endl;
@@ -781,7 +929,12 @@ int main(){
     cout<<TestMultiplication()<<endl;
     cout<<TestDivision()<<endl;
     cout<<TestMod()<<endl;
-
+    cout<<TestAdditionCircuit()<<endl;
+    cout<<TestSubtractionCircuit()<<endl;
+    cout<<TestMultiplicationCircuit()<<endl;
+    cout<<TestDivisionCircuit()<<endl;
+    cout<<TestModCircuit()<<endl;
+    cout<<IsPrime()<<endl;
     //cout<<GetBootstrapping()<<endl;
     //cout<<GetEncryption()<<endl;
     return 0;

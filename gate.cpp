@@ -113,6 +113,12 @@ class SimulatedGateBootstrappedBit {
             routine -> Encrypt();
         }
 
+        void Initialize(bool n, Computation& newComputation) {
+            value = n;
+            routine = &newComputation;
+            routine -> Encrypt();
+        }
+
         SimulatedGateBootstrappedBit operator&(const SimulatedGateBootstrappedBit& a) const {
             SimulatedGateBootstrappedBit b;
 
@@ -170,6 +176,12 @@ class SimulatedCircuitBootstrappedBit {
         }
 
         void Initialize(Computation& newComputation) {
+            routine = &newComputation;
+            routine -> Encrypt();
+        }
+
+        void Initialize(bool n, Computation& newComputation) {
+            value = n;
             routine = &newComputation;
             routine -> Encrypt();
         }
@@ -240,7 +252,14 @@ class SimulatedLevelledBit {
             level = 0;
         }
 
-        void Initialize(Computation& newComputation, long long newDepth) {
+        void Initialize(long long newDepth, Computation& newComputation) {
+            depth = newDepth;
+            routine = &newComputation;
+            routine -> Encrypt();
+        }
+
+        void Initialize(bool n, long long newDepth, Computation& newComputation) {
+            value = n;
             depth = newDepth;
             routine = &newComputation;
             routine -> Encrypt();
@@ -360,6 +379,20 @@ class GenericInt32 {
         }
     }
 
+    void Initialize(int n, Computation& newComputation){
+        for(int i = 0; i < 32; i++){
+            encValue[i].Initialize(n % 2, newComputation);
+            n /= 2;
+        }
+    }
+
+    void Initialize(int n, int newDepth, Computation& newComputation){
+        for(int i = 0; i < 32; i++){
+            encValue[i].Initialize(n % 2, newDepth, newComputation);
+            n /= 2;
+        }
+    }
+
     BoolType operator==(const GenericInt32<BoolType>& a) const {
         BoolType ans(0), temp(0);
 
@@ -429,6 +462,21 @@ class GenericInt32 {
 
         for(int i = 0; i < 32; i++)
             result.encValue[i] = encValue[i] ^ a.encValue[i];
+
+        return result;
+    }
+
+    GenericInt32<BoolType> operator+(const BoolType& a) const {
+        BoolType carry;
+
+        carry = a;
+
+        GenericInt32<BoolType> result;
+
+        for(int i = 0; i < 32; i++) {
+            result.encValue[i] = encValue[i] ^ carry;
+            carry = encValue[i] & carry;
+        }
 
         return result;
     }
@@ -863,7 +911,6 @@ bool TestModCircuit() {
     return flag;
 }
 
-
 bool IsPrime() {
     Computation cycle;
     GenericInt32<SimulatedGateBootstrappedBit> a(37), zero(0), b(2), c;
@@ -891,6 +938,73 @@ bool IsPrime() {
     return isPrime.value;
 }
 
+bool Searching() {
+    Computation cycle;
+    GenericInt32<SimulatedGateBootstrappedBit> a[10];
+
+    for(int i = 0; i < 10; i++) {
+        a[i].Initialize(rand() % 25, cycle);
+    }
+
+    GenericInt32<SimulatedGateBootstrappedBit> x;
+    x.Initialize(cycle);
+    x = a[4];
+
+    SimulatedGateBootstrappedBit result(0);
+    result.Initialize(cycle);
+
+    for(int i = 0; i < 10; i++) {
+        result = result | (x == a[i]);
+    }
+
+    return result.value;
+}
+
+int Counting() {
+    Computation cycle;
+    GenericInt32<SimulatedGateBootstrappedBit> a[10], x, result, zero(0), one(1);
+
+    for(int i = 0; i < 10; i++) {
+        a[i].Initialize(rand() % 25, cycle);
+    }
+
+    x.Initialize(cycle);
+    x = a[4];
+
+    result.Initialize(cycle);
+
+    for(int i = 0; i < 10; i++) {
+        result = result + (x == a[i]);
+    }
+
+    int ans = 0;
+    for(int i = 31; i >= 0; i--) {
+        ans *= 2;
+        ans += result.encValue[i].value;
+    }
+
+    return ans;
+}
+
+void Sorting() {
+    Computation cycle;
+    GenericInt32<SimulatedGateBootstrappedBit> a[10];
+
+    for(int i = 0; i < 10; i++) {
+        a[i].Initialize(rand() % 25, cycle);
+    }
+
+    for(int i = 0; i < 10; i++) {
+        for(int j = i + 1; j < 10; j++) {
+            GenericInt32<SimulatedGateBootstrappedBit> min, max;
+
+
+
+            a[i] = min;
+            a[j] = max;
+        }
+    }
+}
 
 int GetBootstrapping(){
     return bootCount;
@@ -908,9 +1022,9 @@ int main(){
     SimulatedLevelledBit d(0), e(1), f;
     Computation circuit;
 
-    d.Initialize(circuit, 3);
-    e.Initialize(circuit, 3);
-    f.Initialize(circuit, 3);
+    d.Initialize(3, circuit);
+    e.Initialize(3, circuit);
+    f.Initialize(3, circuit);
 
     f = d & e;
     d = f | e;
@@ -935,6 +1049,8 @@ int main(){
     cout<<TestDivisionCircuit()<<endl;
     cout<<TestModCircuit()<<endl;
     cout<<IsPrime()<<endl;
+    cout<<Searching()<<endl;
+    cout<<Counting()<<endl;
     //cout<<GetBootstrapping()<<endl;
     //cout<<GetEncryption()<<endl;
     return 0;

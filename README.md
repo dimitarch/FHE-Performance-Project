@@ -1,10 +1,11 @@
 # FHE Performance Library – Project
 The repository contains the initial stages of the development of a fully homomorphic library for testing, based on the following paper – https://drive.google.com/open?id=1GeCuOPi-xpSxgd2unqutDHMDwn0iWEwG.
 The files are as follows:
-- gate.cpp – The library in development for Gate Bootstrapping
-- circuit.cpp – The library in development for Circuit Bootstrapping
+- include folder - The library itself with implementations for Gate, Circuit and Levelled Bootstrapping
+- tests folder – Tests to prove the validity of the implementation of the fundamental binary and arithmetic operations
+- simulations folder - Analysis of classical algorithms implemented with the library
 - testMean.txt – Test data for bootstrapping in TFHE on a Intel Core i7 4700-HQ (2.40 GHz)
 # Future Development
-Finalization of the development process and starting the wrapping procedure as well as utilizing the algorithm in classical algorithms and arbitrary programs.
+We plane to examine HELib and extend the number of analysed algorithms.
 # Dependencies
-In order to run gate.cpp, so that evaluation of fully homomorphic programs can be performed with accurate average time and standard deviation, one has to install the TFHE library (https://tfhe.github.io/tfhe/) and use the FFT processor spqlios-avx when compiling.
+In order to run the library, so that evaluation of fully homomorphic programs can be performed with accurate average time and standard deviation, one has to install the TFHE library (https://tfhe.github.io/tfhe/) and use the FFT processor spqlios-avx when compiling.

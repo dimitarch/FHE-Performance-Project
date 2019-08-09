@@ -6,6 +6,6 @@ The files are as follows:
 - simulations folder - Analysis of classical algorithms implemented with the library
 - testMean.txt – Test data for bootstrapping in TFHE on a Intel Core i7 4700-HQ (2.40 GHz)
 # Future Development
-We plane to examine HELib and extend the number of analysed algorithms.
+We plan to examine HELib and extend the number of analysed algorithms.
 # Dependencies
 In order to run the library, so that evaluation of fully homomorphic programs can be performed with accurate average time and standard deviation, one has to install the TFHE library (https://tfhe.github.io/tfhe/) and use the FFT processor spqlios-avx when compiling.

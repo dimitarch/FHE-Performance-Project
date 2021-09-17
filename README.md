@@ -1,5 +1,5 @@
 # FHE Performance Library – Project
-The repository contains the initial stages of the development of a fully homomorphic library for testing, based on the following [paper](https://drive.google.com/open?id=1GeCuOPi-xpSxgd2unqutDHMDwn0iWEwG).
+The repository contains a fully homomorphic library for testing, based on the following [paper](https://drive.google.com/open?id=1GeCuOPi-xpSxgd2unqutDHMDwn0iWEwG).
 The files are as follows:
 - include folder - The library itself with implementations for Gate, Circuit and Levelled Bootstrapping
 - tests folder – Tests to prove the validity of the implementation of the fundamental binary and arithmetic operations
